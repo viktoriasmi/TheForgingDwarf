@@ -126,7 +126,7 @@ def add_data():
 
 
 create_tables()
-add_data()
+#add_data()
 
 # cur.close()
 # con.close()
