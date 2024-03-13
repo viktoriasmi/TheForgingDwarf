@@ -1,5 +1,6 @@
 # import psycopg2
 import sqlite3
+import hashlib
 # def connect_database():
 #     try:
 #         # con = psycopg2.connect(database="postgres", user="postgres", password="1111", port="5432", host="localhost")
@@ -95,9 +96,9 @@ def create_tables():
                     """)
         con.commit()
         cur.execute("""
-                            CREATE TABLE IF NOT EXISTS passwords (
-                            name string,
-                            password
+                            CREATE TABLE IF NOT EXISTS users (
+                            username text,
+                            password text
                             );
                             """)
         con.commit()
@@ -109,7 +110,7 @@ catalog1 = [('Меч Экскалибур', 'холодное оружие', 'Д
             ('Броня эпохи Возрождения','броня эпохи Возрождения', 'Дамасская сталь', 'Фэнтези', 100, 10000.00),('Меч Гарольда', 'холодное оружие', 'Дамасская сталь', 'Готика', 120, 10000.00),
             ('Ворота Тадж-Махала', 'ворота', 'Мозаичный', 'Исторический', 1000, 1000000.00),('Ворота Колизея', 'ворота', 'Мозаичная','Историческое', 900, 10000.00)]
 orders1 = [(1, 2, 1, 'ip'), (2, 1, 2, 'ip'), (3, 4, 1, 'ip')]
-
+users1 = [('user', 'useruser'), ('admin', 'adminadmin')]
 def add_data():
     con = connect_database()
     if con is not None:
@@ -129,11 +130,55 @@ def add_data():
         cur.execute("""
                     INSERT INTO individual_orders (client_id, amount, status) VALUES (3, 1, 'ip');
                     """)
+        con.commit()
+        cur.execute("""
+                    INSERT INTO users (username, password) VALUES ('user', 'useruser');
+                            """)
+        con.commit()
+        cur.execute("""
+                    INSERT INTO users (username, password) VALUES ('admin', 'adminadmin');
+                                    """)
+        con.commit()
+
+def hashing_passwords():
+    con = connect_database()
+    cur = con.cursor()
+    userpas = 'useruser'
+    adminpas = 'adminadmin'
+    hashed_password = hashlib.sha256(userpas.encode()).hexdigest()
+    cur.execute("UPDATE users SET password=? WHERE username=?", (hashed_password, 'user'))
+    hashed_password = hashlib.sha256(adminpas.encode()).hexdigest()
+    cur.execute("UPDATE users SET password=? WHERE username=?", (hashed_password, 'admin'))
+    con.commit()
+
+def authorization():
+    con = connect_database()
+    username = input("Введите имя пользователя: ")
+
+    cur = con.cursor()
+    cur.execute("SELECT  *  FROM users WHERE username=?", (username,))
+    result = cur.fetchone()
+
+    if result is not None:
+        password = input("Введите пароль: ")
+
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        if result[1] == hashed_password:
+            print("Авторизация успешна")
+        else:
+            print("Неверный пароль")
+    else:
+        print("Пользователь не найден")
+    con.close()
 
 
 
 create_tables()
 #add_data()
+hashing_passwords()
+authorization()
+
+
 
 # cur.close()
-# con.close()
+#con.close()
