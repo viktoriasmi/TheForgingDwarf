@@ -94,6 +94,13 @@ def create_tables():
                     );
                     """)
         con.commit()
+        cur.execute("""
+                            CREATE TABLE IF NOT EXISTS passwords (
+                            name string,
+                            password
+                            );
+                            """)
+        con.commit()
         con.close()
 
 clients1 = [('Ричард', 'Торрес', '9902 Майерт Ленд Соледадвилль'),('Дебра', 'Флорес', '5390 Люкс Вивьен Маунт'),('Карен', 'Бейкер', '77402 Люкс Энджел Клифф')]
