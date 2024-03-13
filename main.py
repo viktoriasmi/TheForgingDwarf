@@ -1,6 +1,7 @@
 # import psycopg2
 import sqlite3
 import hashlib
+import getpass
 # def connect_database():
 #     try:
 #         # con = psycopg2.connect(database="postgres", user="postgres", password="1111", port="5432", host="localhost")
@@ -116,27 +117,27 @@ def add_data():
     if con is not None:
         cur = con.cursor()
         cur.executemany("""
-                        INSERT INTO clients (first_name, last_name, address) VALUES (?, ?, ?);
+                        INSERT OR IGNORE INTO clients (first_name, last_name, address) VALUES (?, ?, ?);
                         """, clients1)
         con.commit()
         cur.executemany("""
-                          INSERT INTO catalog (name, type, material, style, production_time, price) VALUES (?, ?, ?, ?, ?, ?);
+                          INSERT OR IGNORE INTO catalog (name, type, material, style, production_time, price) VALUES (?, ?, ?, ?, ?, ?);
                         """, catalog1)
         con.commit()
         cur.executemany("""
-                            INSERT INTO orders (client_id, catalog_id, amount, status) VALUES (?, ?, ?, ?);
+                            INSERT OR IGNORE INTO orders (client_id, catalog_id, amount, status) VALUES (?, ?, ?, ?);
                             """, orders1)
         con.commit()
         cur.execute("""
-                    INSERT INTO individual_orders (client_id, amount, status) VALUES (3, 1, 'ip');
+                    INSERT OR IGNORE INTO individual_orders (client_id, amount, status) VALUES (3, 1, 'ip');
                     """)
         con.commit()
         cur.execute("""
-                    INSERT INTO users (username, password) VALUES ('user', 'useruser');
+                    INSERT OR IGNORE INTO users (username, password) VALUES ('user', 'useruser');
                             """)
         con.commit()
         cur.execute("""
-                    INSERT INTO users (username, password) VALUES ('admin', 'adminadmin');
+                    INSERT OR IGNORE INTO users (username, password) VALUES ('admin', 'adminadmin');
                                     """)
         con.commit()
 
@@ -151,6 +152,17 @@ def hashing_passwords():
     cur.execute("UPDATE users SET password=? WHERE username=?", (hashed_password, 'admin'))
     con.commit()
 
+def theforgingdwarfadmin():
+    con = connect_database()
+    cur = con.cursor()
+    print('Добро пожаловать в кузницу The Forging Dwarf!')
+    con.close()
+def theforgingdwarfuser():
+    con = connect_database()
+    cur = con.cursor()
+    print('Добро пожаловать в кузницу The Forging Dwarf!')
+    con.close()
+
 def authorization():
     con = connect_database()
     username = input("Введите имя пользователя: ")
@@ -161,10 +173,16 @@ def authorization():
 
     if result is not None:
         password = input("Введите пароль: ")
+        #password = getpass.getpass("Введите пароль: ")
 
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
         if result[1] == hashed_password:
-            print("Авторизация успешна")
+            if username == "user":
+                print("Авторизация успешна")
+                theforgingdwarfuser()
+            if username == "admin":
+                print("Авторизация успешна")
+                theforgingdwarfadmin()
         else:
             print("Неверный пароль")
     else:
