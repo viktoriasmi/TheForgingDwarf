@@ -58,7 +58,7 @@ def create_tables():
                         client_id INT REFERENCES clients(id),
                         catalog_id INT REFERENCES catalog(id),
                         created_at TIMESTAMP,
-                        completed_at TIMESTAMP,
+                        production_time INT NOT NULL,
                         amount INT NOT NULL,
                         status TEXT NOT NULL
                         );  
@@ -71,7 +71,7 @@ def create_tables():
                     client_id INT REFERENCES clients(id),
                     req TEXT,
                     created_at TIMESTAMP,
-                    completed_at TIMESTAMP,
+                    production_time INT NOT NULL,
                     amount INT NOT NULL,
                     status TEXT NOT NULL
                     );
@@ -88,13 +88,22 @@ def create_tables():
         con.commit()
 
         cur.execute("""
-                    CREATE TABLE IF NOT EXISTS queue (
-                    order_id INT REFERENCES orders(id),
-                    created_at TIMESTAMP REFERENCES orders(created_at),
-                    status TEXT NOT NULL REFERENCES orders(status),
-                    production_time INT NOT NULL REFERENCES catalog(production_time)
+                    CREATE TABLE IF NOT EXISTS queue_regular (
+                    order_id INT REFERENCES orders(id),     
+                    created_at TIMESTAMP,
+                    status TEXT NOT NULL,
+                    production_time INT NOT NULL
                     );
                     """)
+        con.commit()
+        cur.execute("""
+                            CREATE TABLE IF NOT EXISTS queue_individual (
+                            order_id INT REFERENCES individual_orders(id),     
+                            created_at TIMESTAMP,
+                            status TEXT NOT NULL,
+                            production_time INT NOT NULL
+                            );
+                            """)
         con.commit()
         cur.execute("""
                             CREATE TABLE IF NOT EXISTS users (
@@ -110,36 +119,49 @@ catalog1 = [('Меч Экскалибур', 'холодное оружие', 'Д
             ('Средневековая броня', 'средневековая броня', 'Железо', 'Готика', 100, 10000.00),('Средневековая броня', 'средневековая броня', 'Железо', 'Готика', 100, 10000.00),
             ('Броня эпохи Возрождения','броня эпохи Возрождения', 'Дамасская сталь', 'Фэнтези', 100, 10000.00),('Меч Гарольда', 'холодное оружие', 'Дамасская сталь', 'Готика', 120, 10000.00),
             ('Ворота Тадж-Махала', 'ворота', 'Мозаичный', 'Исторический', 1000, 1000000.00),('Ворота Колизея', 'ворота', 'Мозаичная','Историческое', 900, 10000.00)]
-orders1 = [(1, 2, 1, 'ip'), (2, 1, 2, 'ip'), (3, 4, 1, 'ip')]
+orders1 = [(1, 2, '2024-03-14 15:08:05', 3, 1, 'ip'), (2, 1, '2024-03-14 15:08:05', 3, 2, 'ip'), (3, 4, '2024-03-14 15:08:05', 4, 1, 'ip')]
 users1 = [('user', 'useruser'), ('admin', 'adminadmin')]
+queue1 = [()]
 def add_data():
     con = connect_database()
     if con is not None:
         cur = con.cursor()
         cur.executemany("""
-                        INSERT OR IGNORE INTO clients (first_name, last_name, address) VALUES (?, ?, ?);
+                        INSERT INTO clients (first_name, last_name, address) VALUES (?, ?, ?);
                         """, clients1)
         con.commit()
         cur.executemany("""
-                          INSERT OR IGNORE INTO catalog (name, type, material, style, production_time, price) VALUES (?, ?, ?, ?, ?, ?);
+                          INSERT INTO catalog (name, type, material, style, production_time, price) VALUES (?, ?, ?, ?, ?, ?);
                         """, catalog1)
         con.commit()
         cur.executemany("""
-                            INSERT OR IGNORE INTO orders (client_id, catalog_id, amount, status) VALUES (?, ?, ?, ?);
+                            INSERT INTO orders (client_id, catalog_id, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?);
                             """, orders1)
         con.commit()
         cur.execute("""
-                    INSERT OR IGNORE INTO individual_orders (client_id, amount, status) VALUES (3, 1, 'ip');
+                    INSERT INTO individual_orders (client_id, created_at, production_time, amount, status) VALUES (3, '2024-03-14 15:08:05', 5, 1, 'ip');
                     """)
         con.commit()
         cur.execute("""
-                    INSERT OR IGNORE INTO users (username, password) VALUES ('user', 'useruser');
+                    INSERT INTO users (username, password) VALUES ('user', 'useruser');
                             """)
         con.commit()
         cur.execute("""
-                    INSERT OR IGNORE INTO users (username, password) VALUES ('admin', 'adminadmin');
+                    INSERT INTO users (username, password) VALUES ('admin', 'adminadmin');
                                     """)
         con.commit()
+        cur.execute("""
+            INSERT INTO queue_regular (order_id, created_at, status, production_time)
+            SELECT id, created_at, status, production_time FROM orders;
+        """)
+        con.commit()
+
+        cur.execute("""
+            INSERT INTO queue_individual (order_id, created_at, status, production_time)
+            SELECT id, created_at, status, production_time FROM individual_orders;
+        """)
+        con.commit()
+
 
 def hashing_passwords():
     con = connect_database()
@@ -156,11 +178,28 @@ def theforgingdwarfadmin():
     con = connect_database()
     cur = con.cursor()
     print('Добро пожаловать в кузницу The Forging Dwarf!')
+    print('Выберите одну из опций: ')
+    print('1 - добавить новый заказ')
+    print('2 - удалить заказ')
+    print('3 - изменить заказ')
+    print('4 - добавить новое изделие в каталог')
+    print('5 - изменить изделие в каталоге')
+    print('6 - поиск')
+    print('7 - показать очередь заказов')
+    print('8 - вывести доход кузницы')
+    number = input("Выберите для продолжения: ")
+    #if number == 1:
+
     con.close()
 def theforgingdwarfuser():
     con = connect_database()
     cur = con.cursor()
     print('Добро пожаловать в кузницу The Forging Dwarf!')
+    print('Выберите одну из опций: ')
+    print('1 - отправить заявку на заказ')
+    print('2 - поиск')
+    print('3 - вывести каталог изделий')
+    number = input("Выберите для продолжения: ")
     con.close()
 
 def authorization():
@@ -192,7 +231,7 @@ def authorization():
 
 
 create_tables()
-#add_data()
+add_data()
 hashing_passwords()
 authorization()
 
