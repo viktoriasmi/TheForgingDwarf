@@ -2,6 +2,9 @@
 import sqlite3
 import hashlib
 import getpass
+import datetime
+
+
 # def connect_database():
 #     try:
 #         # con = psycopg2.connect(database="postgres", user="postgres", password="1111", port="5432", host="localhost")
@@ -180,15 +183,59 @@ def theforgingdwarfadmin():
     print('Добро пожаловать в кузницу The Forging Dwarf!')
     print('Выберите одну из опций: ')
     print('1 - добавить новый заказ')
-    print('2 - удалить заказ')
-    print('3 - изменить заказ')
-    print('4 - добавить новое изделие в каталог')
-    print('5 - изменить изделие в каталоге')
-    print('6 - поиск')
-    print('7 - показать очередь заказов')
-    print('8 - вывести доход кузницы')
-    number = input("Выберите для продолжения: ")
-    #if number == 1:
+    print('2 - добавить нового клиента')
+    print('3 - удалить заказ')
+    print('4 - изменить заказ')
+    print('5 - добавить новое изделие в каталог')
+    print('6 - изменить изделие в каталоге')
+    print('7 - поиск')
+    print('8 - показать очередь заказов')
+    print('9 - вывести доход кузницы')
+    number = int(input("Выберите для продолжения: "))
+    if number == 1:
+        choice = input("Выберите тип заказа: индивидуальный или из каталога? (i или c) ")
+        if choice == 'i':
+            print('Список клиентов кузницы: ')
+            cur.execute("SELECT   *   FROM clients")
+            desc = cur.description
+            headers = [col[0] for col in desc]
+            print(headers)
+            for row in cur:
+                print(row)
+            client_id = input("Введите id клиента: ")
+            req = input("Введите описание заказа: ")
+            production_time = input("Введите время производства: ")
+            amount = input("Введите количество изделий: ")
+            status = 'ip'
+            created_at = datetime.datetime.now()
+            cur.execute(
+                "INSERT INTO individual_orders (client_id, req, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
+                (client_id, req, created_at, production_time, amount, status))
+        elif choice == 'c':
+            print('Список клиентов кузницы: ')
+            cur.execute("SELECT  *  FROM clients")
+            desc = cur.description
+            headers = [col[0] for col in desc]
+            print(headers)
+            for row in cur:
+                print(row)
+            client_id = input("Введите id клиента: ")
+            print('Список изделий из каталога: ')
+            cur.execute("SELECT  *  FROM catalog")
+            desc = cur.description
+            headers = [col[0] for col in desc]
+            print(headers)
+            for row in cur:
+                print(row)
+            catalog_id = input("Введите id изделия из каталога: ")
+            production_time = input("Введите время производства: ")
+            amount = input("Введите количество изделий: ")
+            status = 'ip'
+            created_at = datetime.datetime.now()
+            cur.execute(
+                "INSERT INTO orders (client_id, catalog_id, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
+                (client_id, catalog_id, created_at, production_time, amount, status))
+        con.commit()
 
     con.close()
 def theforgingdwarfuser():
@@ -231,7 +278,7 @@ def authorization():
 
 
 create_tables()
-add_data()
+#add_data()
 hashing_passwords()
 authorization()
 
