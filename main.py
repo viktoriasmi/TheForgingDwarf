@@ -324,10 +324,10 @@ def theforgingdwarfuser():
 
                 else:
                     client_id = client_id
-            else:
-                client_id = client_rows[0][0]
+            elif len(client_rows) == 1:
+               client_id = client_rows[0][0]
             #такой клиент не найден
-            if client_id is None:
+            if not client_rows:
                 print("Клиент с таким именем не найден, необходима регистрация. Желаете провести ее сейчас? (y/n)")
                 choice = input()
                 if choice == 'y':
