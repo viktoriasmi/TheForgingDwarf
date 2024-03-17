@@ -195,152 +195,188 @@ def add_client():
 def theforgingdwarfadmin():
     con = connect_database()
     cur = con.cursor()
-    print('Добро пожаловать в кузницу The Forging Dwarf!')
-    print('Выберите одну из опций: ')
-    print('1 - добавить новый заказ')
-    print('2 - добавить нового клиента')
-    print('3 - удалить заказ')
-    print('4 - изменить заказ')
-    print('5 - добавить новое изделие в каталог')
-    print('6 - изменить изделие в каталоге')
-    print('7 - поиск')
-    print('8 - показать очередь заказов')
-    print('9 - вывести доход кузницы')
-    number = int(input("Выберите для продолжения: "))
-    if number == 1:
-        choice = input("Выберите тип заказа: индивидуальный или из каталога? (i или c) ")
-        #индивидуальный заказ
-        if choice == 'i':
-            print('Список клиентов кузницы: ')
-            cur.execute("SELECT   *   FROM clients")
-            desc = cur.description
-            headers = [col[0] for col in desc]
-            print(headers)
-            for row in cur:
-                print(row)
-            client_id = input("Введите id клиента: ")
-            req = input("Введите описание заказа: ")
-            production_time = input("Введите время производства: ")
-            amount = input("Введите количество изделий: ")
-            status = 'ip'
-            created_at = datetime.datetime.now()
-            cur.execute(
-                "INSERT INTO individual_orders (client_id, req, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
-                (client_id, req, created_at, production_time, amount, status))
-        #заказ из каталога
-        elif choice == 'c':
-            print('Список клиентов кузницы: ')
-            cur.execute("SELECT  *  FROM clients")
-            desc = cur.description
-            headers = [col[0] for col in desc]
-            print(headers)
-            for row in cur:
-                print(row)
-            client_id = input("Введите id клиента: ")
-            print('Список изделий из каталога: ')
-            cur.execute("SELECT  *  FROM catalog")
-            desc = cur.description
-            headers = [col[0] for col in desc]
-            print(headers)
-            for row in cur:
-                print(row)
-            catalog_id = input("Введите id изделия из каталога: ")
-            cur.execute("SELECT production_time FROM catalog WHERE id = ?", (catalog_id,))
-            production_time = cur.fetchone()[0]
-            amount = input("Введите количество изделий: ")
-            status = 'ip'
-            created_at = datetime.datetime.now()
-            cur.execute(
-                "INSERT INTO orders (client_id, catalog_id, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
-                (client_id, catalog_id, created_at, production_time, amount, status))
-        con.commit()
-        print('Заказ успешно добавлен!')
-    #добавить клиента
-    elif number == 2:
-        add_client()
+    while True:
+        print('Добро пожаловать в кузницу The Forging Dwarf!')
+        print('Выберите одну из опций: ')
+        print('1 - добавить новый заказ')
+        print('2 - добавить нового клиента')
+        print('3 - удалить заказ')
+        print('4 - изменить заказ')
+        print('5 - добавить новое изделие в каталог')
+        print('6 - изменить изделие в каталоге')
+        print('7 - поиск')
+        print('8 - показать очередь заказов')
+        print('9 - вывести доход кузницы')
+        number = int(input("Выберите для продолжения: "))
+        if number == 1:
+            choice = input("Выберите тип заказа: индивидуальный или из каталога? (i или c) ")
+            #индивидуальный заказ
+            if choice == 'i':
+                print('Список клиентов кузницы: ')
+                cur.execute("SELECT   *   FROM clients")
+                desc = cur.description
+                headers = [col[0] for col in desc]
+                print(headers)
+                for row in cur:
+                    print(row)
+                client_id = input("Введите id клиента: ")
+                req = input("Введите описание заказа: ")
+                production_time = input("Введите время производства: ")
+                amount = input("Введите количество изделий: ")
+                status = 'ip'
+                created_at = datetime.datetime.now()
+                cur.execute(
+                    "INSERT INTO individual_orders (client_id, req, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
+                    (client_id, req, created_at, production_time, amount, status))
+            #заказ из каталога
+            elif choice == 'c':
+                print('Список клиентов кузницы: ')
+                cur.execute("SELECT  *  FROM clients")
+                desc = cur.description
+                headers = [col[0] for col in desc]
+                print(headers)
+                for row in cur:
+                    print(row)
+                client_id = input("Введите id клиента: ")
+                print('Список изделий из каталога: ')
+                cur.execute("SELECT  *  FROM catalog")
+                desc = cur.description
+                headers = [col[0] for col in desc]
+                print(headers)
+                for row in cur:
+                    print(row)
+                catalog_id = input("Введите id изделия из каталога: ")
+                cur.execute("SELECT production_time FROM catalog WHERE id = ?", (catalog_id,))
+                production_time = cur.fetchone()[0]
+                amount = input("Введите количество изделий: ")
+                status = 'ip'
+                created_at = datetime.datetime.now()
+                cur.execute(
+                    "INSERT INTO orders (client_id, catalog_id, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
+                    (client_id, catalog_id, created_at, production_time, amount, status))
+            con.commit()
+            print('Заказ успешно добавлен!')
+        #добавить клиента
+        elif number == 2:
+            con = connect_database()
+            cur = con.cursor()
+            lastname = input("Введите фамилию: ")
+            firstname = input("Введите имя: ")
+            address = input("Введите адрес: ")
+            cur.execute("INSERT INTO clients (last_name, first_name, address) VALUES (?, ?, ?)",
+                        (lastname, firstname, address))
+            con.commit()
+            print('Клиент успешно добавлен! ')
     con.close()
 def theforgingdwarfuser():
     con = connect_database()
     cur = con.cursor()
-    print('Добро пожаловать в кузницу The Forging Dwarf!')
-    print('Выберите одну из опций: ')
-    print('1 - зарегестрироваться как клиент')
-    print('2 - отправить заявку на заказ')
-    print('3 - поиск')
-    print('4 - вывести каталог изделий')
-    number = int(input("Выберите для продолжения: "))
-    #добавить себя как клиента
-    if number == 1:
-        add_client()
-    #добавить заказ как клиент
-    elif number == 2:
-        firstname = input("Введите имя: ")
-        lastname = input("Введите фамилию: ")
-        cur.execute("SELECT id FROM clients WHERE first_name = ? AND last_name = ?", (firstname, lastname))
-        client_rows = cur.fetchall()
-        if len(client_rows) > 1:
-            #если клиентов одинаковых несколько
-            print("Найдено несколько клиентов с одинаковыми именем и фамилией, пожалуйста, укажите адрес.")
+    while True:
+        print('Добро пожаловать в кузницу The Forging Dwarf!')
+        print('Выберите одну из опций: ')
+        print('1 - зарегестрироваться как клиент')
+        print('2 - отправить заявку на заказ')
+        print('3 - поиск')
+        print('4 - вывести каталог изделий')
+        number = int(input("Выберите для продолжения: "))
+        #добавить себя как клиента
+        if number == 1:
+            con = connect_database()
+            cur = con.cursor()
+            lastname = input("Введите фамилию: ")
+            firstname = input("Введите имя: ")
             address = input("Введите адрес: ")
+            cur.execute("INSERT INTO clients (last_name, first_name, address) VALUES (?, ?, ?)",
+                        (lastname, firstname, address))
+            con.commit()
+            print('Клиент успешно добавлен! ')
+        #добавить заказ как клиент
+        elif number == 2:
+            firstname = input("Введите имя: ")
+            lastname = input("Введите фамилию: ")
+            cur.execute("SELECT id FROM clients WHERE first_name = ? AND last_name = ?", (firstname, lastname))
+            client_rows = cur.fetchall()
+            if len(client_rows) > 1:
+                #если клиентов одинаковых несколько
+                print("Найдено несколько клиентов с одинаковыми именем и фамилией, пожалуйста, укажите адрес.")
+                address = input("Введите адрес: ")
 
-            cur.execute("SELECT id FROM clients WHERE first_name = ? AND last_name = ? AND address = ?",
-                        (firstname, lastname, address))
-            client_id = cur.fetchone()
+                cur.execute("SELECT id FROM clients WHERE first_name = ? AND last_name = ? AND address = ?",
+                            (firstname, lastname, address))
+                client_id = cur.fetchone()
+                if client_id is None:
+                    print(
+                        "Клиент с таким именем и адресом не найден, необходима регистрация. Желаете провести ее сейчас? (y/n)")
+                    choice = input()
+                    if choice == 'y':
+                        con = connect_database()
+                        cur = con.cursor()
+                        lastname = input("Введите фамилию: ")
+                        firstname = input("Введите имя: ")
+                        address = input("Введите адрес: ")
+                        cur.execute("INSERT INTO clients (last_name, first_name, address) VALUES (?, ?, ?)",
+                                    (lastname, firstname, address))
+                        con.commit()
+                        print('Клиент успешно добавлен! ')
+                        client_id = cur.lastrowid
+                    else:
+                        print("Без регистрации невозможно оформить заказ.")
+
+                else:
+                    client_id = client_id
+            else:
+                client_id = client_rows[0][0]
+            #такой клиент не найден
             if client_id is None:
-                print(
-                    "Клиент с таким именем и адресом не найден, необходима регистрация. Желаете провести ее сейчас? (y/n)")
+                print("Клиент с таким именем не найден, необходима регистрация. Желаете провести ее сейчас? (y/n)")
                 choice = input()
                 if choice == 'y':
-                    add_client()
+                    con = connect_database()
+                    cur = con.cursor()
+                    lastname = input("Введите фамилию: ")
+                    firstname = input("Введите имя: ")
+                    address = input("Введите адрес: ")
+                    cur.execute("INSERT INTO clients (last_name, first_name, address) VALUES (?, ?, ?)",
+                                (lastname, firstname, address))
+                    con.commit()
+                    print('Клиент успешно добавлен! ')
+                    client_id = cur.lastrowid
                 else:
                     print("Без регистрации невозможно оформить заказ.")
-                    exit()
-            else:
-                client_id = client_id[0]
-        else:
-            client_id = client_rows[0][0]
-        #такой клиент не найден
-        if client_id is None:
-            print("Клиент с таким именем не найден, необходима регистрация. Желаете провести ее сейчас? (y/n)")
-            choice = input()
-            if choice == 'y':
-                add_client()
-            else:
-                print("Без регистрации невозможно оформить заказ.")
-                exit()
-        else:
-            client_id = client_id[0]
-        #оформление заказа как клиент
-        choice = input("Выберите тип заказа: индивидуальный или из каталога? (i или c) ")
-        if choice == 'i':
-            req = input("Введите описание заказа: ")
-            production_time = random.randint(350,1000)
-            amount = input("Введите количество изделий: ")
-            status = 'ip'
-            created_at = datetime.datetime.now()
-            cur.execute(
-                "INSERT INTO individual_orders (client_id, req, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
-                (client_id, req, created_at, production_time, amount, status))
-        elif choice == 'c':
-            print('Список изделий из каталога: ')
-            cur.execute("SELECT   *   FROM catalog")
-            desc = cur.description
-            headers = [col[0] for col in desc]
-            print(headers)
-            for row in cur:
-                print(row)
-            catalog_id = input("Введите id изделия из каталога: ")
-            cur.execute("SELECT production_time FROM catalog WHERE id = ?", (catalog_id,))
-            production_time = cur.fetchone()[0]
-            amount = input("Введите количество изделий: ")
-            status = 'ip'
-            created_at = datetime.datetime.now()
-            cur.execute(
-                "INSERT INTO orders (client_id, catalog_id, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
-                (client_id, catalog_id, created_at, production_time, amount, status))
 
-        con.commit()
-        print('Заказ успешно добавлен!')
+            else:
+                client_id = client_id
+            #оформление заказа как клиент
+            choice = input("Выберите тип заказа: индивидуальный или из каталога? (i или c) ")
+            if choice == 'i':
+                req = input("Введите описание заказа: ")
+                production_time = random.randint(350,1000)
+                amount = input("Введите количество изделий: ")
+                status = 'ip'
+                created_at = datetime.datetime.now()
+                cur.execute(
+                    "INSERT INTO individual_orders (client_id, req, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
+                    (client_id, req, created_at, production_time, amount, status))
+            elif choice == 'c':
+                print('Список изделий из каталога: ')
+                cur.execute("SELECT   *   FROM catalog")
+                desc = cur.description
+                headers = [col[0] for col in desc]
+                print(headers)
+                for row in cur:
+                    print(row)
+                catalog_id = input("Введите id изделия из каталога: ")
+                cur.execute("SELECT production_time FROM catalog WHERE id = ?", (catalog_id,))
+                production_time = cur.fetchone()[0]
+                amount = input("Введите количество изделий: ")
+                status = 'ip'
+                created_at = datetime.datetime.now()
+                cur.execute(
+                    "INSERT INTO orders (client_id, catalog_id, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?)",
+                    (client_id, catalog_id, created_at, production_time, amount, status))
+
+            con.commit()
+            print('Заказ успешно добавлен!')
     con.close()
 
 def authorization():
