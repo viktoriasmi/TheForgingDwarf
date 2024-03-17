@@ -130,41 +130,57 @@ def add_data():
     con = connect_database()
     if con is not None:
         cur = con.cursor()
-        cur.executemany("""
-                        INSERT INTO clients (first_name, last_name, address) VALUES (?, ?, ?);
-                        """, clients1)
-        con.commit()
-        cur.executemany("""
-                          INSERT INTO catalog (name, type, material, style, production_time, price) VALUES (?, ?, ?, ?, ?, ?);
-                        """, catalog1)
-        con.commit()
-        cur.executemany("""
-                            INSERT INTO orders (client_id, catalog_id, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?);
-                            """, orders1)
-        con.commit()
-        cur.execute("""
-                    INSERT INTO individual_orders (client_id, created_at, production_time, amount, status) VALUES (3, '2024-03-14 15:08:05', 5, 1, 'ip');
-                    """)
-        con.commit()
-        cur.execute("""
-                    INSERT INTO users (username, password) VALUES ('user', 'useruser');
-                            """)
-        con.commit()
-        cur.execute("""
-                    INSERT INTO users (username, password) VALUES ('admin', 'adminadmin');
-                                    """)
-        con.commit()
-        cur.execute("""
-            INSERT INTO queue_regular (order_id, created_at, status, production_time)
-            SELECT id, created_at, status, production_time FROM orders;
-        """)
-        con.commit()
-
-        cur.execute("""
-            INSERT INTO queue_individual (order_id, created_at, status, production_time)
-            SELECT id, created_at, status, production_time FROM individual_orders;
-        """)
-        con.commit()
+        cur.execute("SELECT  *  FROM clients ")
+        existing_row = cur.fetchone()
+        if existing_row is None:
+            cur.executemany("""
+                            INSERT INTO clients (first_name, last_name, address) VALUES (?, ?, ?);
+                            """, clients1)
+            con.commit()
+        cur.execute("SELECT  *  FROM catalog ")
+        existing_row = cur.fetchone()
+        if existing_row is None:
+            cur.executemany("""
+                              INSERT INTO catalog (name, type, material, style, production_time, price) VALUES (?, ?, ?, ?, ?, ?);
+                            """, catalog1)
+            con.commit()
+        cur.execute("SELECT  *  FROM orders ")
+        existing_row = cur.fetchone()
+        if existing_row is None:
+            cur.executemany("""
+                                INSERT INTO orders (client_id, catalog_id, created_at, production_time, amount, status) VALUES (?, ?, ?, ?, ?, ?);
+                                """, orders1)
+            con.commit()
+        cur.execute("SELECT  *  FROM individual_orders ")
+        existing_row = cur.fetchone()
+        if existing_row is None:
+            cur.execute("""
+                        INSERT INTO individual_orders (client_id, created_at, production_time, amount, status) VALUES (3, '2024-03-14 15:08:05', 5, 1, 'ip');
+                        """)
+            con.commit()
+        cur.execute("SELECT  *  FROM users ")
+        existing_row = cur.fetchone()
+        if existing_row is None:
+            cur.execute("""
+                        INSERT INTO users (username, password) VALUES (?, ?);
+                                """, users1)
+            con.commit()
+        cur.execute("SELECT  *  FROM queue_regular ")
+        existing_row = cur.fetchone()
+        if existing_row is None:
+            cur.execute("""
+                INSERT INTO queue_regular (order_id, created_at, status, production_time)
+                SELECT id, created_at, status, production_time FROM orders;
+            """)
+            con.commit()
+        cur.execute("SELECT  *  FROM queue_individual ")
+        existing_row = cur.fetchone()
+        if existing_row is None:
+            cur.execute("""
+                INSERT INTO queue_individual (order_id, created_at, status, production_time)
+                SELECT id, created_at, status, production_time FROM individual_orders;
+            """)
+            con.commit()
 
 
 def hashing_passwords():
@@ -321,6 +337,7 @@ def theforgingdwarfuser():
                         client_id = cur.lastrowid
                     else:
                         print("Без регистрации невозможно оформить заказ.")
+                        break
 
                 else:
                     client_id = client_id
@@ -343,6 +360,7 @@ def theforgingdwarfuser():
                     client_id = cur.lastrowid
                 else:
                     print("Без регистрации невозможно оформить заказ.")
+                    break
 
             else:
                 client_id = client_id
@@ -408,7 +426,7 @@ def authorization():
 
 
 create_tables()
-#add_data()
+add_data()
 hashing_passwords()
 authorization()
 
