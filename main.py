@@ -283,6 +283,38 @@ def theforgingdwarfadmin():
                         (lastname, firstname, address))
             con.commit()
             print('Клиент успешно добавлен! ')
+        elif number == 3:
+            # удаление заказа админ
+            con = connect_database()
+            cur = con.cursor()
+            print('Список заказов из каталога: ')
+            cur.execute("SELECT  *  FROM orders")
+            desc = cur.description
+            headers = [col[0] for col in desc]
+            print(headers)
+            for row in cur:
+                print(row)
+            print('Список индивидуальных заказов: ')
+            cur.execute("SELECT  *  FROM individual_orders")
+            desc = cur.description
+            headers = [col[0] for col in desc]
+            print(headers)
+            for row in cur:
+                print(row)
+
+            choice = input("Выберите, откуда удалить заказ: заказы из каталога (c) или индивидуальные заказы (i): ")
+            id = input("Введите id заказа для удаления: ")
+
+            if choice == "c":
+                cur.execute("DELETE FROM orders WHERE id = ?", (id,))
+            elif choice == "i":
+                cur.execute("DELETE FROM individual_orders WHERE id = ?", (id,))
+            else:
+                print("Неверный выбор. Попробуйте еще раз.")
+                return
+            con.commit()
+
+            print("Заказ успешно удален.")
     con.close()
 def theforgingdwarfuser():
     con = connect_database()
