@@ -302,12 +302,15 @@ def theforgingdwarfadmin():
             for row in cur:
                 print(row)
 
-            choice = input("Выберите, откуда удалить заказ: заказы из каталога (c) или индивидуальные заказы (i): ")
+            print("Выберите, где изменить заказ:")
+            print("1. Изменить заказ в таблице orders")
+            print("2. Изменить заказ в таблице individual_orders")
+            choice = input()
             id = input("Введите id заказа для удаления: ")
 
-            if choice == "c":
+            if choice == "1":
                 cur.execute("DELETE FROM orders WHERE id = ?", (id,))
-            elif choice == "i":
+            elif choice == "2":
                 cur.execute("DELETE FROM individual_orders WHERE id = ?", (id,))
             else:
                 print("Неверный выбор. Попробуйте еще раз.")
@@ -315,6 +318,179 @@ def theforgingdwarfadmin():
             con.commit()
 
             print("Заказ успешно удален.")
+        elif number == 4:
+            #изменение заказа админ
+            con = connect_database()
+            cur = con.cursor()
+            print('Список заказов из каталога: ')
+            cur.execute("SELECT  *  FROM orders")
+            desc = cur.description
+            headers = [col[0] for col in desc]
+            print(headers)
+            for row in cur:
+                print(row)
+            print('Список индивидуальных заказов: ')
+            cur.execute("SELECT  *  FROM individual_orders")
+            desc = cur.description
+            headers = [col[0] for col in desc]
+            print(headers)
+            for row in cur:
+                print(row)
+
+
+            print("Выберите, где изменить заказ:")
+            print("1. Изменить заказ в таблице orders")
+            print("2. Изменить заказ в таблице individual_orders")
+            choice = input("Введите номер: ")
+            if choice == "1":
+                # Изменение заказа в таблице orders
+                print("Введите id заказа для изменения: ")
+                id = input("Введите id: ")
+                try:
+                    # Проверка ввода на валидность
+                    int(id)
+                except ValueError:
+                    print("Неверный ввод. Попробуйте еще раз.")
+                    # Запрос на поле для изменения
+
+                print("Выберите поле для изменения:")
+                print("1. id")
+                print("2. client_id")
+                print("3. catalog_id")
+                print("4. created_at")
+                print("5. production_time")
+                print("6. amount")
+                print("7. status")
+                choice = input("Введите номер: ")
+                if choice == "1" or choice == "2" or choice == "3" or choice == "4" or choice == "5" or choice == "6" or choice == "7":
+                    # Запрос на новое значение для поля
+
+                    print("Введите новое значение для выбранного поля: ")
+                    new_value = input("Введите новое значение: ")
+                    try:
+                        # Проверка ввода на валидность
+                        if choice == "1" or choice == "2" or choice == "3":
+                            int(new_value)
+                        elif choice == "4":
+                            date_object = datetime.datetime.strptime(new_value, '%Y-%m-%d %H:%M:%S')
+                            formatted_date = date_object.strftime('%Y-%m-%d %H:%M:%S')
+                            # Проверка на формат даты
+                            #try:
+                                #datetime.strptime(new_value, '%Y-%m-%d %H:%M:%S')
+                            #except ValueError:
+                                #print("Неверный формат даты. Попробуйте еще раз.")
+                        elif choice == "5":
+                            int(new_value)
+                        elif choice == "6":
+                            int(new_value)
+                        elif choice == "7":
+                            new_value = new_value.lower()
+                            if new_value not in ['ip', 'd', 'c']:
+                                print("Неверное значение статуса. Попробуйте еще раз.")
+                        else:
+                            print("Неверный выбор. Попробуйте еще раз.")
+
+                    except ValueError:
+                        print("Неверный ввод. Попробуйте еще раз.")
+
+                    # Изменение данных в базе данных
+                    if choice == "1":
+                        cur.execute("UPDATE orders SET id = ? WHERE id = ?", (new_value, id))
+                    elif choice == "2":
+                        cur.execute("UPDATE individual_orders SET client_id = ? WHERE id = ?", (new_value, id))
+                    elif choice == "3":
+                        cur.execute("UPDATE individual_orders SET catalog_id = ? WHERE id = ?", (new_value, id))
+                    elif choice == "4":
+                        cur.execute("UPDATE individual_orders SET created_at = ? WHERE id = ?", (formatted_date, id))
+                    elif choice == "5":
+                        cur.execute("UPDATE individual_orders SET production_time = ? WHERE id = ?", (new_value, id))
+                    elif choice == "6":
+                        cur.execute("UPDATE individual_orders SET amount = ? WHERE id = ?", (new_value, id))
+                    elif choice == "7":
+                        cur.execute("UPDATE individual_orders SET status = ? WHERE id = ?", (new_value, id))
+
+                    # Сохранение изменений в базе данных
+                    con.commit()
+                    print("Заказ успешно изменен!")
+                else:
+                    print("Неверный выбор. Попробуйте еще раз.")
+
+            elif choice == "2":
+                # Изменение заказа в таблице individual_orders
+                print("Введите id заказа для изменения: ")
+                id = input("Введите id: ")
+                try:
+                    # Проверка ввода на валидность
+                    int(id)
+                except ValueError:
+                    print("Неверный ввод. Попробуйте еще раз.")
+                    # Запрос на поле для изменения
+
+                print("Выберите поле для изменения:")
+                print("1. id")
+                print("2. client_id")
+                print("3. req")
+                print("4. created_at")
+                print("5. production_time")
+                print("6. amount")
+                print("7. status")
+                choice = input("Введите номер: ")
+                if choice == "1" or choice == "2" or choice == "3" or choice == "4" or choice == "5" or choice == "6" or choice == "7":
+                    # Запрос на новое значение для поля
+
+                    print("Введите новое значение для выбранного поля: ")
+                    new_value = input("Введите новое значение: ")
+                    try:
+                        # Проверка ввода на валидность
+                        if choice == "1" or choice == "2":
+                            int(new_value)
+                        elif choice == "3":
+                            str(new_value)
+                        elif choice == "4":
+                            pass
+                            # Проверка на формат даты
+                            #try:
+                                #datetime.strptime(new_value, '%Y-%m-%d %H:%M:%S')
+                            #except ValueError:
+                                #print("Неверный формат даты. Попробуйте еще раз.")
+                        elif choice == "5":
+                            int(new_value)
+                        elif choice == "6":
+                            int(new_value)
+                        elif choice == "7":
+                            new_value = new_value.lower()
+                            if new_value not in ['ip', 'd', 'c']:
+                                print("Неверное значение статуса. Попробуйте еще раз.")
+                        else:
+                            print("Неверный выбор. Попробуйте еще раз.")
+
+                    except ValueError:
+                        print("Неверный ввод. Попробуйте еще раз.")
+
+                    # Изменение данных в базе данных
+                    if choice == "1":
+                        cur.execute("UPDATE orders SET id = ? WHERE id = ?", (new_value, id))
+                    elif choice == "2":
+                        cur.execute("UPDATE individual_orders SET client_id = ? WHERE id = ?", (new_value, id))
+                    elif choice == "3":
+                        cur.execute("UPDATE individual_orders SET req = ? WHERE id = ?", (new_value, id))
+                    elif choice == "4":
+                        cur.execute("UPDATE individual_orders SET created_at = ? WHERE id = ?", (new_value, id))
+                    elif choice == "5":
+                        cur.execute("UPDATE individual_orders SET production_time = ? WHERE id = ?", (new_value, id))
+                    elif choice == "6":
+                        cur.execute("UPDATE individual_orders SET amount = ? WHERE id = ?", (new_value, id))
+                    elif choice == "7":
+                        cur.execute("UPDATE individual_orders SET status = ? WHERE id = ?", (new_value, id))
+
+                    # Сохранение изменений в базе данных
+                    con.commit()
+                    print("Заказ успешно изменен!")
+                else:
+                    print("Неверный выбор. Попробуйте еще раз.")
+            else:
+                print("Неверный выбор. Попробуйте еще раз.")
+
     con.close()
 def theforgingdwarfuser():
     con = connect_database()
